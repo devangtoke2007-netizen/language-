@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASL Live Sign Language Translator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e0f2fe, #f5f3ff);
+    color: #172033;
+    min-height: 100vh;
+}
+
+button, input, select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 9px;
+    padding: 11px 16px;
+    background: #4f46e5;
+    color: white;
+    font-weight: bold;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.hidden {
+    display: none !important;
+}
+
+header {
+    background: #25235c;
+    color: white;
+    padding: 18px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 25px;
+    margin-bottom: 7px;
+}
+
+header p {
+    color: #dbeafe;
+    font-size: 14px;
+}
+
+.page {
+    max-width: 1150px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* LOGIN PAGE */
+
+#loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 35px #64748b30;
+    text-align: center;
+}
+
+.logo {
+    font-size: 55px;
+    margin-bottom: 12px;
+}
+
+.login-card h2 {
+    margin-bottom: 10px;
+    color: #312e81;
+}
+
+.login-card p {
+    color: #64748b;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+}
+
+.login-card button {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.note {
+    font-size: 12px;
+    margin-top: 15px;
+    color: #64748b;
+}
+
+/* MAIN PAGE */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 13px 20px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+nav strong {
+    color: #312e81;
+    font-size: 19px;
+}
+
+.welcome {
+    background: white;
+    padding: 22px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 15px #64748b15;
+}
+
+.welcome h2 {
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 18px;
+    box-shadow: 0 3px 15px #64748b15;
+    min-width: 0;
+}
+
+.card h3 {
+    margin-bottom: 14px;
+    color: #312e81;
+}
+
+.camera-box {
+    position: relative;
+    background: #111827;
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 220px;
+    aspect-ratio: 4 / 3;
+}
+
+#video, #landmarkCanvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+}
+
+#landmarkCanvas {
+    pointer-events: none;
+}
+
+.camera-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    color: white;
+    line-height: 1.6;
+}
+
+.controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.controls button {
+    flex: 1;
+    min-width: 100px;
+}
+
+.secondary {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.danger {
+    background: #dc2626;
+}
+
+.status {
+    margin-top: 12px;
+    padding: 11px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.result {
+    margin-top: 12px;
+    background: #eef2ff;
+    padding: 17px;
+    border-radius: 12px;
+}
+
+.result-label {
+    font-size: 12px;
+    color: #6366f1;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#recognizedText {
+    font-size: 25px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+    margin: 8px 0;
+}
+
+#confidenceText {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.safety {
+    margin-top: 12px;
+    border-radius: 10px;
+    background: #fff7ed;
+    color: #9a3412;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.word-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.word-list button {
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 13px;
+    padding: 9px 12px;
+}
+
+.word-list button.active {
+    background: #4f46e5;
+    color: white;
+}
+
+.output-text {
+    min-height: 65px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    margin: 10px 0;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    margin: 8px 0;
+    background: white;
+}
+
+.history {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history li {
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.alphabet-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.alphabet-grid button {
+    padding: 10px 2px;
+    background: #f1f5f9;
+    color: #312e81;
+    border: 1px solid #e2e8f0;
+}
+
+.alphabet-grid button:hover {
+    background: #c7d2fe;
+}
+
+.small {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 25px;
+    font-size: 13px;
+}
+
+@media(max-width:700px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page {
+        padding: 12px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .alphabet-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- PAGE 1: LOGIN -->
+
+<section id="loginPage">
+    <div class="login-card">
+        <div class="logo">🤟</div>
+        <h2>ASL Connect</h2>
+        <p>American Sign Language learning and camera-based translation.</p>
+
+        <form id="loginForm">
+            <input id="userName" type="text"
+                   placeholder="Enter your name" required>
+
+            <input id="userEmail" type="email"
+                   placeholder="Enter your email" required>
+
+            <input id="userPassword" type="password"
+                   placeholder="Create or enter a password"
+                   minlength="4" required>
+
+            <button type="submit">Login / Continue</button>
+        </form>
+
+        <div class="note">
+            Demo login only. This page does not create a secure account
+            or save passwords on a server.
+        </div>
+    </div>
+</section>
+
+<!-- PAGE 2: TRANSLATOR -->
+
+<section id="mainPage" class="hidden">
+
+    <header>
+        <h1>🤟 ASL Live Sign Language Translator</h1>
+        <p>Recognize hand signs, display text, and speak the result</p>
+    </header>
+
+    <nav>
+        <strong>ASL Connect</strong>
+        <span id="welcomeUser">Welcome!</span>
+        <button id="logoutButton" class="secondary">Logout</button>
+    </nav>
+
+    <main class="page">
+
+        <section class="welcome">
+            <h2>Welcome to Live ASL Translation</h2>
+            <p>
+                Show one hand sign clearly in front of your camera.
+                The application uses hand landmarks to recognize supported
+                static gestures. It also provides a vocabulary guide for
+                greetings, emergency-related phrases, family signs,
+                common expressions, and the ASL alphabet.
+            </p>
+        </section>
+
+        <div class="grid">
+
+            <!-- CAMERA -->
+
+            <section class="card">
+                <h3>📷 Live Camera</h3>
+
+                <div class="camera-box">
+                    <video id="video" autoplay playsinline muted
+                           class="hidden"></video>
+
+                    <canvas id="landmarkCanvas"></canvas>
+
+                    <div id="cameraPlaceholder" class="camera-placeholder">
+                        Camera is not started.<br>
+                        Press Start Camera to allow access.
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="startCamera">Start Camera</button>
+                    <button id="stopCamera" class="danger">Stop Camera</button>
+                </div>
+
+                <div class="controls">
+                    <button id="toggleDetection" class="secondary">
+                        Start Detection
+                    </button>
+                    <button id="captureButton" class="secondary">
+                        Capture Snapshot
+                    </button>
+                </div>
+
+                <div class="status" id="cameraStatus" aria-live="polite">
+                    Camera is waiting for permission.
+                </div>
+
+                <p class="small">
+                    Camera access normally requires HTTPS or localhost.
+                    Your camera is processed in this browser; this code
+                    does not upload camera frames to a server.
+                </p>
+            </section>
+
+            <!-- RECOGNITION RESULT -->
+
+            <section class="card">
+                <h3>📝 Translation Result</h3>
+
+                <div class="result">
+                    <div class="result-label">Recognized sign</div>
+                    <div id="recognizedText" aria-live="polite">
+                        Waiting for a hand sign...
+                    </div>
+                    <div id="confidenceText">
+                        Show a supported hand gesture to begin.
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="speakButton">🔊 Speak Result</button>
+                    <button id="addTextButton" class="secondary">
+                        Add to Sentence
+                    </button>
+                </div>
+
+                <div class="controls">
+                    <button id="clearSentence" class="secondary">
+                        Clear Sentence
+                    </button>
+                </div>
+
+                <h3 style="margin-top:20px">Sentence Builder</h3>
+
+                <div id="sentenceOutput" class="output-text"
+                     aria-live="polite">
+                    Your translated sentence will appear here.
+                </div>
+
+                <button id="speakSentence">🔊 Speak Sentence</button>
+
+                <div class="safety">
+                    Emergency signs in this demo are for educational use.
+                    Do not rely on this application alone to identify
+                    emergencies or contact emergency services.
+                </div>
+            </section>
+
+            <!-- VOCABULARY -->
+
+            <section class="card">
+                <h3>👋 Common ASL Signs</h3>
+
+                <div id="vocabularyButtons" class="word-list"></div>
+
+                <p class="small">
+                    Select a phrase to learn its name and hear a spoken
+                    English equivalent. Selecting a phrase does not mean
+                    the camera has recognized that sign.
+                </p>
+            </section>
+
+            <!-- ALPHABET -->
+
+            <section class="card">
+                <h3>🔤 ASL Alphabet A–Z</h3>
+
+                <div id="alphabetButtons" class="alphabet-grid"></div>
+
+                <p class="small">
+                    Fingerspelling recognition requires correct hand shape
+                    and orientation. Some letters, especially J and Z,
+                    involve movement. This demo does not claim to recognize
+                    all alphabet signs reliably.
+                </p>
+            </section>
+
+            <!-- VOICE SETTINGS -->
+
+            <section class="card">
+                <h3>🔊 Voice Settings</h3>
+
+                <label for="voiceSelect">Choose speech voice</label>
+                <select id="voiceSelect">
+                    <option value="">Default browser voice</option>
+                </select>
+
+                <label for="speechRate">Speech speed</label>
+                <select id="speechRate">
+                    <option value="0.7">Slow</option>
+                    <option value="0.9" selected>Normal</option>
+                    <option value="1.1">Fast</option>
+                </select>
+
+                <div class="controls">
+                    <button id="testVoice">Test Voice</button>
+                    <button id="stopVoice" class="secondary">
+                        Stop Speaking
+                    </button>
+                </div>
+
+                <p class="small">
+                    Voice output uses your browser's speech synthesis
+                    feature. Available voices depend on your device.
+                </p>
+            </section>
+
+            <!-- SNAPSHOTS AND HISTORY -->
+
+            <section class="card">
+                <h3>📸 Snapshot & Detection History</h3>
+
+                <p class="small">
+                    Captured snapshots are displayed below. Only save
+                    images of people who have given permission.
+                </p>
+
+                <ul id="historyList" class="history">
+                    <li>No snapshots captured yet.</li>
+                </ul>
+
+                <div class="controls">
+                    <button id="clearHistory" class="secondary">
+                        Clear History
+                    </button>
+                </div>
+
+                <div id="snapshotContainer"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer>
+        ASL Connect · Educational demonstration ·
+        Camera access is controlled by the user.
+    </footer>
+</section>
+
+<!-- HAND LANDMARK LIBRARY -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+<script>
+"use strict";
+
+/*
+ * IMPORTANT:
+ * This is a browser-based ASL prototype, not a complete ASL interpreter.
+ *
+ * MediaPipe detects hand landmarks. The gesture classifier below recognizes
+ * a limited set of approximate static hand shapes. It cannot reliably
+ * understand every ASL word, moving sign, facial expression, or sentence.
+ *
+ * A trained ASL model and appropriate labeled data are needed for reliable
+ * real-time recognition of the complete alphabet and vocabulary.
+ */
+
+const $ = id => document.getElementById(id);
+
+let cameraStream = null;
+let handsModel = null;
+let detectionEnabled = false;
+let processing = false;
+let animationFrame = null;
+let lastGesture = "";
+let repeatedFrames = 0;
+let lastSpokenGesture = "";
+let currentRecognized = "";
+let sentence = [];
+let historyEntries = [];
+let lastSnapshotTime = 0;
+let voices = [];
+let currentUser = "";
+let cameraFacingMode = "user";
+
+const video = $("video");
+const canvas = $("landmarkCanvas");
+const ctx = canvas.getContext("2d");
+
+const vocabulary = [
+    ["HELLO", "Hello"],
+    ["GOODBYE", "Goodbye"],
+    ["I LOVE YOU", "I love you"],
+    ["THANK YOU", "Thank you"],
+    ["PLEASE", "Please"],
+    ["SORRY", "Sorry"],
+    ["YES", "Yes"],
+    ["NO", "No"],
+    ["HELP ME", "Help me"],
+    ["EMERGENCY", "Emergency"],
+    ["MY NAME IS", "My name is"],
+    ["WHAT IS YOUR NAME", "What is your name"],
+    ["FAMILY", "Family"],
+    ["HOUSE", "House"],
+    ["LOVE", "Love"],
+    ["YOU ARE WELCOME", "You are welcome"],
+    ["I LIKE IT", "I like it"],
+    ["STOP", "Stop"],
+    ["WATER", "Water"],
+    ["FRIEND", "Friend"],
+    ["HOW ARE YOU", "How are you"],
+    ["GOOD", "Good"],
+    ["BAD", "Bad"],
+    ["MORE", "More"]
+];
+
+function showMainPage(name) {
+    currentUser = name || "User";
+    $("welcomeUser").textContent = "Welcome, " + currentUser;
+    $("loginPage").classList.add("hidden");
+    $("mainPage").classList.remove("hidden");
+}
+
+$("loginForm").addEventListener("submit", event => {
+    event.preventDefault();
+
+    const name = $("userName").value.trim();
+
+    if (!name) {
+        alert("Please enter your name.");
+        return;
+    }
+
+    // Demo only: no password or email is stored.
+    showMainPage(name);
+});
+
+$("logoutButton").addEventListener("click", async () => {
+    await stopCamera();
+    window.speechSynthesis?.cancel();
+    $("mainPage").classList.add("hidden");
+    $("loginPage").classList.remove("hidden");
+    $("userPassword").value = "";
+});
+
+/* ---------------- VOCABULARY GUIDE ---------------- */
+
+function buildVocabulary() {
+    const container = $("vocabularyButtons");
+
+    vocabulary.forEach(([label, spoken]) => {
+        const button = document.createElement("button");
+        button.textContent = label;
+        button.type = "button";
+
+        button.addEventListener("click", () => {
+            currentRecognized = spoken;
+            $("recognizedText").textContent = spoken;
+            $("confidenceText").textContent =
+                "Vocabulary selection — not camera recognition.";
+
+            speak(spoken);
+        });
+
+        container.appendChild(button);
+    });
+}
+
+function buildAlphabet() {
+    const container = $("alphabetButtons");
+
+    for (let code = 65; code <= 90; code++) {
+        const letter = String.fromCharCode(code);
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.textContent = letter;
+        button.title = "Speak letter " + letter;
+
+        button.addEventListener("click", () => {
+            currentRecognized = letter;
+            $("recognizedText").textContent = letter;
+            $("confidenceText").textContent =
+                "Alphabet selected manually — not camera recognition.";
+            speak(letter);
+        });
+
+        container.appendChild(button);
+    }
+}
+
+buildVocabulary();
+buildAlphabet();
+
+/* ---------------- TEXT-TO-SPEECH ---------------- */
+
+function populateVoices() {
+    if (!("speechSynthesis" in window)) return;
+
+    voices = window.speechSynthesis.getVoices();
+    const select = $("voiceSelect");
+    const previous = select.value;
+
+    select.innerHTML = '<option value="">Default browser voice</option>';
+
+    voices.forEach((voice, index) => {
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = voice.name + " (" + voice.lang + ")";
+        select.appendChild(option);
+    });
+
+    select.value = previous;
+}
+
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = populateVoices;
+    populateVoices();
+}
+
+function speak(text) {
+    if (!("speechSynthesis" in window)) {
+        alert("Speech synthesis is not supported by this browser.");
+        return;
+    }
+
+    if (!text || !text.trim()) {
+        alert("There is no text to speak.");
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = Number($("speechRate").value);
+
+    const selected = $("voiceSelect").value;
+
+    if (selected !== "" && voices[Number(selected)]) {
+        utterance.voice = voices[Number(selected)];
+    }
+
+    utterance.lang = utterance.voice?.lang || "en-US";
+    window.speechSynthesis.speak(utterance);
+}
+
+$("speakButton").addEventListener("click", () => {
+    speak(currentRecognized);
+});
+
+$("speakSentence").addEventListener("click", () => {
+    speak(sentence.join(" "));
+});
+
+$("testVoice").addEventListener("click", () => {
+    speak("Hello! Welcome to the ASL sign language translator.");
+});
+
+$("stopVoice").addEventListener("click", () => {
+    window.speechSynthesis?.cancel();
+});
+
+$("addTextButton").addEventListener("click", () => {
+    if (!currentRecognized) {
+        alert("Recognize or select a sign first.");
+        return;
+    }
+
+    sentence.push(currentRecognized);
+    $("sentenceOutput").textContent = sentence.join(" ");
+});
+
+$("clearSentence").addEventListener("click", () => {
+    sentence = [];
+    $("sentenceOutput").textContent =
+        "Your translated sentence will appear here.";
+});
+
+/* ---------------- CAMERA ACCESS ---------------- */
+
+$("startCamera").addEventListener("click", startCamera);
+$("stopCamera").addEventListener("click", stopCamera);
+
+async function startCamera() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+        $("cameraStatus").textContent =
+            "Camera access is unavailable. Use HTTPS or localhost in a supported browser.";
+        return;
+    }
+
+    try {
+        $("cameraStatus").textContent = "Requesting camera permission...";
+
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                facingMode: cameraFacingMode,
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        });
+
+        video.srcObject = cameraStream;
+        video.classList.remove("hidden");
+        $("cameraPlaceholder").classList.add("hidden");
+
+        await video.play();
+
+        resizeCanvas();
+
+        $("cameraStatus").textContent =
+            "Camera connected. Start detection when ready.";
+
+        if (!handsModel) {
+            await initializeHandModel();
+        }
+    } catch (error) {
+        $("cameraStatus").textContent =
+            "Camera error: " + readableCameraError(error);
+    }
+}
+
+function readableCameraError(error) {
+    if (error.name === "NotAllowedError") {
+        return "Camera permission was denied. Allow camera access in browser settings.";
+    }
+
+    if (error.name === "NotFoundError") {
+        return "No camera was found on this device.";
+    }
+
+    if (error.name === "NotReadableError") {
+        return "The camera may already be in use by another application.";
+    }
+
+    return error.message || "Unable to start the camera.";
+}
+
+async function stopCamera() {
+    detectionEnabled = false;
+    processing = false;
+
+    if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+    }
+
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+
+    video.srcObject = null;
+    video.classList.add("hidden");
+    $("cameraPlaceholder").classList.remove("hidden");
+    $("cameraPlaceholder").innerHTML =
+        "Camera is not started.<br>Press Start Camera to allow access.";
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    $("toggleDetection").textContent = "Start Detection";
+    $("cameraStatus").textContent = "Camera stopped.";
+}
+
+function resizeCanvas() {
+    if (!video.videoWidth || !video.videoHeight) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+}
+
+/* ---------------- HAND LANDMARK MODEL ---------------- */
+
+async function initializeHandModel() {
+    if (typeof Hands === "undefined") {
+        $("cameraStatus").textContent =
+            "Hand-detection library could not load. Check your internet connection.";
+        return false;
+    }
+
+    try {
+        handsModel = new Hands({
+            locateFile: file =>
+                "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
+        });
+
+        handsModel.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.65,
+            minTrackingConfidence: 0.60
+        });
+
+        handsModel.onResults(handleHandResults);
+
+        $("cameraStatus").textContent =
+            "Hand model loaded. Start Detection to analyze gestures.";
+
+        return true;
+    } catch (error) {
+        $("cameraStatus").textContent =
+            "Unable to initialize hand model: " + error.message;
+        return false;
+    }
+}
+
+$("toggleDetection").addEventListener("click", async () => {
+    if (!cameraStream) {
+        alert("Please start the camera first.");
+        return;
+    }
+
+    if (!handsModel && !(await initializeHandModel())) {
+        return;
+    }
+
+    detectionEnabled = !detectionEnabled;
+
+    $("toggleDetection").textContent =
+        detectionEnabled ? "Stop Detection" : "Start Detection";
+
+    $("cameraStatus").textContent = detectionEnabled
+        ? "Detection running. Keep your hand clearly visible."
+        : "Detection paused.";
+
+    if (detectionEnabled) {
+        detectFrame();
+    } else {
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+    }
+});
+
+async function detectFrame() {
+    if (!detectionEnabled || !cameraStream || !handsModel) return;
+
+    if (video.readyState >= 2 && !processing) {
+        processing = true;
+
+        try {
+            await handsModel.send({ image: video });
+        } catch (error) {
+            $("cameraStatus").textContent =
+                "Detection error: " + error.message;
+        } finally {
+            processing = false;
+        }
+    }
+
+    if (detectionEnabled) {
+        animationFrame = requestAnimationFrame(detectFrame);
+    }
+}
+
+/* ---------------- LANDMARK DRAWING ---------------- */
+
+function handleHandResults(results) {
+    if (video.videoWidth && canvas.width !== video.videoWidth) {
+        resizeCanvas();
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const allHands = results.multiHandLandmarks || [];
+
+    if (!allHands.length) {
+        lastGesture = "";
+        repeatedFrames = 0;
+
+        $("cameraStatus").textContent =
+            "No hand detected. Place your hand in the camera view.";
+        return;
+    }
+
+    const landmarks = allHands[0];
+
+    drawHand(landmarks);
+
+    const gesture = classifyGesture(landmarks);
+
+    if (gesture) {
+        if (gesture === lastGesture) {
+            repeatedFrames++;
+        } else {
+            lastGesture = gesture;
+            repeatedFrames = 1;
+        }
+
+        $("cameraStatus").textContent =
+            "Hand detected. Candidate gesture: " + gesture;
+
+        // Require a stable gesture across multiple frames.
+        if (repeatedFrames >= 12) {
+            currentRecognized = gesture;
+            $("recognizedText").textContent = gesture;
+            $("confidenceText").textContent =
+                "Approximate gesture match. Not a validated ASL translation.";
+
+            if (gesture !== lastSpokenGesture) {
+                lastSpokenGesture = gesture;
+            }
+        }
+    } else {
+        lastGesture = "";
+        repeatedFrames = 0;
+        $("cameraStatus").textContent =
+            "Hand detected, but no supported static gesture was matched.";
+    }
+}
+
+function drawHand(points) {
+    // Hand connections used by the MediaPipe Hands model.
+    const connections = [
+        [0,1],[1,2],[2,3],[3,4],
+        [0,5],[5,6],[6,7],[7,8],
+        [5,9],[9,10],[10,11],[11,12],
+        [9,13],[13,14],[14,15],[15,16],
+        [13,17],[17,18],[18,19],[19,20],
+        [0,17]
+    ];
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#22c55e";
+    ctx.fillStyle = "#facc15";
+
+    connections.forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(
+            points[a].x * canvas.width,
+            points[a].y * canvas.height
+        );
+        ctx.lineTo(
+            points[b].x * canvas.width,
+            points[b].y * canvas.height
+        );
+        ctx.stroke();
+    });
+
+    points.forEach(point => {
+        ctx.beginPath();
+        ctx.arc(
+            point.x * canvas.width,
+            point.y * canvas.height,
+            4,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+    });
+}
+
+/* ---------------- APPROXIMATE GESTURE CLASSIFIER ---------------- */
+
+/*
+ * Landmark indices:
+ * Thumb tip 4, index tip 8, middle tip 12, ring tip 16,
+ * little tip 20. Finger joints: 6, 10, 14, 18.
+ *
+ * This simple classifier is only an educational approximation.
+ * It is not a complete ASL model and does not guarantee correct results.
+ */
+
+function distance(a, b) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    const dz = (a.z || 0) - (b.z || 0);
+
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+function classifyGesture(p) {
+    const wrist = p[0];
+
+    // Normalize finger extension relative to the wrist-to-MCP length.
+    function fingerExtended(tip, joint, mcp) {
+        const tipDistance = distance(p[tip], wrist);
+        const jointDistance = distance(p[joint], wrist);
+        const baseDistance = distance(p[mcp], wrist);
+
+        return tipDistance > jointDistance * 1.10 &&
+               tipDistance > baseDistance * 1.20;
+    }
+
+    const index = fingerExtended(8, 6, 5);
+    const middle = fingerExtended(12, 10, 9);
+    const ring = fingerExtended(16, 14, 13);
+    const little = fingerExtended(20, 18, 17);
+
+    const extendedCount =
+        [index, middle, ring, little].filter(Boolean).length;
+
+    const thumbIndexGap = distance(p[4], p[8]);
+    const palmScale = Math.max(distance(p[0], p[9]), 0.001);
+    const thumbIndexTouch = thumbIndexGap < palmScale * 0.35;
+
+    // A few common hand shapes only. Many ASL signs share these shapes.
+    if (index && middle && ring && little) {
+        if (thumbIndexTouch) return "Possible O hand shape";
+        return "Open hand";
+    }
+
+    if (index && middle && !ring && !little) {
+        return "Two fingers extended";
+    }
+
+    if (index && !middle && !ring && !little) {
+        return "One finger extended";
+    }
+
+    if (!index && !middle && !ring && !little) {
+        return "Closed fist";
+    }
+
+    if (thumbIndexTouch && middle && ring && little) {
+        return "Possible O hand shape";
+    }
+
+    if (index && middle && ring && !little) {
+        return "Three fingers extended";
+    }
+
+    if (!index && !middle && !ring && little) {
+        return "Little finger extended";
+    }
+
+    if (extendedCount === 0) {
+        return "Closed fist";
+    }
+
+    return "";
+}
+
+/* ---------------- SNAPSHOTS ---------------- */
+
+$("captureButton").addEventListener("click", captureSnapshot);
+
+function captureSnapshot() {
+    if (!cameraStream || !video.videoWidth) {
+        alert("Start the camera before capturing a snapshot.");
+        return;
+    }
+
+    const imageCanvas = document.createElement("canvas");
+    imageCanvas.width = video.videoWidth;
+    imageCanvas.height = video.videoHeight;
+
+    const imageContext = imageCanvas.getContext("2d");
+    imageContext.drawImage(video, 0, 0);
+
+    const time = new Date().toLocaleString();
+
+    imageCanvas.toBlob(blob => {
+        if (!blob) {
+            alert("Unable to create snapshot.");
+            return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const item = {
+            time,
+            label: currentRecognized || "No confirmed sign",
+            url
+        };
+
+        historyEntries.unshift(item);
+        renderHistory();
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "asl-snapshot-" + Date.now() + ".jpg";
+        link.textContent = "Download latest snapshot";
+        link.style.display = "inline-block";
+        link.style.marginTop = "12px";
+
+        const container = $("snapshotContainer");
+        container.replaceChildren(link);
+
+    }, "image/jpeg", 0.9);
+}
+
+function renderHistory() {
+    const list = $("historyList");
+    list.replaceChildren();
+
+    if (!historyEntries.length) {
+        const item = document.createElement("li");
+        item.textContent = "No snapshots captured yet.";
+        list.appendChild(item);
+        return;
+    }
+
+    historyEntries.forEach((entry, index) => {
+        const item = document.createElement("li");
+
+        const text = document.createElement("div");
+        text.textContent =
+            (index + 1) + ". " + entry.label + " — " + entry.time;
+
+        const image = document.createElement("img");
+        image.src = entry.url;
+        image.alt = "Captured camera snapshot";
+        image.style.width = "100%";
+        image.style.maxWidth = "220px";
+        image.style.marginTop = "8px";
+        image.style.borderRadius = "8px";
+
+        item.append(text, image);
+        list.appendChild(item);
+    });
+}
+
+$("clearHistory").addEventListener("click", () => {
+    historyEntries.forEach(item => URL.revokeObjectURL(item.url));
+    historyEntries = [];
+    $("snapshotContainer").replaceChildren();
+    renderHistory();
+});
+
+/* ---------------- INITIALIZATION ---------------- */
+
+renderHistory();
+</script>
+
+</body>
+</html>
